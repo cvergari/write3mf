@@ -8,7 +8,7 @@ function write3mf(filename , vertices , faces, colors)
 % I wrote this function because 3mf files can be imported in Powerpoint 365
 % ProPlus 2016 as 3D objects which can be manipulated live.
 % 
-% This function reproduces a simple 3mf file structure, embedding the
+% This function creates a simple 3mf file structure, embedding the
 % vertices, faces and colors provided.
 %
 % Syntax: write3mf(filename , vertices , faces, colors)
@@ -58,6 +58,10 @@ function write3mf(filename , vertices , faces, colors)
 
 
 function hex = rgb2hex(rgb)
+% rgb2hex function is adapted from Chad Greene's function, which can be
+% found on MathWork's File Exchange at this address:
+% https://fr.mathworks.com/matlabcentral/fileexchange/46289-rgb2hex-and-hex2rgb
+
     if max(rgb(:))<=1
         rgb = round(rgb*255); 
     else
@@ -87,13 +91,33 @@ function files = tempFiles(filename)
 % write3mf must write some temporary files in a specific path structure,
 % reproducing the structure of the 3mf file. 
 
-    files.temppath = [mfilename('fullpath') , '_temp\'];
-    if exist(files.temppath , 'dir')
-        error(['Error: write3mf must write some temporary files but the ' ...
-               'temporary folder already exists. Please delete it before proceeding: '...
-               files.temppath]);
+    % Try using the OS temporary path; use try/catch because sometimes
+    % admin privileges are needed to write in the temporary folder  
+    try
+        files.temppath = tempdir();
+        files.temppath = [files.temppath , 'write3mf\'];
+        tmp_file = [files.temppath 'test.txt'];
+        fid = fopen(tmp_file,'w');
+        fprintf(fid , '%s' , 'Test writing');
+        fclose(fid);
+        delete(tmp_file);
+        
+    catch
+        % If temporary folder does not work, use local path
+        
+        files.temppath = [mfilename('fullpath') , '_temp\'];
+        if exist(files.temppath , 'dir')
+            error(['Error: write3mf must write some temporary files but the ' ...
+                   'temporary folder already exists. Please start Matlab with '...
+                   'admin privileges so that the OS temporary folder can be used, ' ...
+                   'or delete this folder before proceeding: '...
+                   files.temppath]);
+        end
+        
     end
-    
+
+    % Structure and files for the ZIP file that will be packaged withing
+    % the 3mf output file
     files.content_types = [files.temppath , '[Content_Types].xml'];
     files.p_rels = [files.temppath , '_rels\'];
     files.p_3D   = [files.temppath , '3D\'];
