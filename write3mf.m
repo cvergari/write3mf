@@ -1,5 +1,5 @@
 function write3mf(filename , vertices , faces, colors)
-% WRITE3MF: Writes 3mf 3D model file from vertices, faces and optionally
+% WRITE3MF: Writes 3mf 3D file from vertices, faces and optionally
 % colors.
 % 3mf file is the "3D Manufacturing Format" of file that will allow design 
 % applications to send full-fidelity 3D models to a mix of other 
@@ -29,7 +29,9 @@ function write3mf(filename , vertices , faces, colors)
 %   write3mf('D:\temp\pyramid_vertexcolor.3mf' , vertices , faces)
 
     
-    if nargin < 3 && ischar(vertices) && strcmpi(vertices , 'demo')
+    if nargin < 2
+        error('Not enough input arguments. Usage: write3mf(filename , vertices , faces, colors)');
+    elseif nargin < 3 && ischar(vertices) && strcmpi(vertices , 'demo')
         % Demo mode
         [vertices , faces, colors] = prepareDemo();
     elseif nargin < 4
@@ -74,7 +76,7 @@ function checkInput(filename , vertices , faces, colors)
     elseif max(faces(:)) > size(vertices,1)
         error(['Error: Some faces indicate a non-existing node number ' num2str(max(faces(:)))]);
     elseif ~isempty(colors) && size(colors,2) ~= 3
-        error('Error: colors variable should be empty or a Nx3 matrix of RGB values for each vertes')
+        error('Error: colors variable should be empty or a Nx3 matrix of RGB values for each vertex')
     elseif ~ischar(filename)
         error('Error: filename should be a string pointing to the output file')
     end
@@ -227,6 +229,9 @@ function [vertices , faces, colors] = prepareDemo()
     patch('Faces', faces, 'Vertices',vertices,'FaceVertexCData', colors,...
           'EdgeColor','None', 'FaceColor', 'interp', 'CDataMapping' , 'scaled')
     title('Creating 3mf file of this object...')
-    campos([15 , -70 , 45])
+    axis equal;  grid on;
+    set(gca, 'XTickLabel' , '', 'YTickLabel' , '', 'ZTickLabel' , '')
+    campos([15 , -70 , 45]);
+    
     
     
