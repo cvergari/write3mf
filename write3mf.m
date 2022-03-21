@@ -95,7 +95,7 @@ function files = tempFiles(filename)
     % admin privileges are needed to write in the temporary folder  
     try
         files.temppath = tempdir();
-        files.temppath = [files.temppath , 'write3mf\'];
+        files.temppath = [files.temppath , 'write3mf' , filesep];
         tmp_file = [files.temppath 'test.txt'];
         fid = fopen(tmp_file,'w');
         fprintf(fid , '%s' , 'Test writing');
@@ -105,7 +105,7 @@ function files = tempFiles(filename)
     catch
         % If temporary folder does not work, use local path
         
-        files.temppath = [mfilename('fullpath') , '_temp\'];
+        files.temppath = [mfilename('fullpath') , '_temp', filesep];
         if exist(files.temppath , 'dir')
             error(['Error: write3mf must write some temporary files but the ' ...
                    'temporary folder already exists. Please start Matlab with '...
@@ -119,8 +119,8 @@ function files = tempFiles(filename)
     % Structure and files for the ZIP file that will be packaged withing
     % the 3mf output file
     files.content_types = [files.temppath , '[Content_Types].xml'];
-    files.p_rels = [files.temppath , '_rels\'];
-    files.p_3D   = [files.temppath , '3D\'];
+    files.p_rels = [files.temppath , '_rels', filesep];
+    files.p_3D   = [files.temppath , '3D', filesep];
     files.rels   = [files.p_rels '.rels'];
     files.model  = [files.p_3D , '3dmodel.model'];
     files.zip = [files.temppath , '3mf.zip'];
@@ -136,7 +136,7 @@ function files = tempFiles(filename)
 function package3mf(files)    
 % Create zip file and renames it to the output 3mf file
     
-    zip(files.zip , {'[Content_Types].xml' , '_rels\.rels' , '3D\3dmodel.model'},files.temppath);
+    zip(files.zip , {'[Content_Types].xml' , ['_rels', filesep, '.rels'] , ['3D' filesep '3dmodel.model']},files.temppath);
     movefile(files.zip , files.output , 'f')
 
 
