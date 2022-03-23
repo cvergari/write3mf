@@ -176,7 +176,7 @@ function writeTempFiles(files)
 function write3DModel(files , vertices , faces, colors)
 % Writes the 3D model proper
 
-    fid = fopen(files.model , 'w');
+    fid = fopen(files.model , 'W');
     
     % Write header
     fprintf(fid , '<?xml version="1.0" encoding="UTF-8"?>\n');
@@ -192,9 +192,7 @@ function write3DModel(files , vertices , faces, colors)
         unique_colors = rgb2hex(unique_colors);
 
         fprintf(fid , '\t\t<m:colorgroup id="2">\n');
-        for k = 1 : size(unique_colors , 1)
-            fprintf(fid , '\t\t\t<m:color color="#%s" />\n' , unique_colors(k,:));        
-        end
+        fprintf(fid , '\t\t\t<m:color color="#%c%c%c%c%c%c" />\n' , unique_colors');  
         fprintf(fid , '\t\t</m:colorgroup>\n');
     end
 
@@ -205,23 +203,17 @@ function write3DModel(files , vertices , faces, colors)
     
     % Vertices
     fprintf(fid , '\t\t\t\t<vertices>\n');
-    for k = 1 : size(vertices , 1)
-        fprintf(fid , '\t\t\t\t\t<vertex x="%.2f" y="%.2f" z="%.2f" />\n' , vertices(k,:));        
-    end    
+    fprintf(fid , '\t\t\t\t\t<vertex x="%.2f" y="%.2f" z="%.2f" />\n' , vertices');  
     fprintf(fid , '\t\t\t\t</vertices>\n');
     
     % Triangles
     fprintf(fid , '\t\t\t\t<triangles>\n');
     if isempty(colors)
-        for k = 1 : size(faces , 1)
-            fprintf(fid , '\t\t\t\t\t<triangle v1="%u" v2="%u" v3="%u" />\n' , faces(k,:) - 1);        
-        end        
+        fprintf(fid , '\t\t\t\t\t<triangle v1="%u" v2="%u" v3="%u" />\n' , faces' - 1);       
     else
-        for k = 1 : size(faces , 1)
-            row_colors = idx_colors(faces(k,:))' - 1;
-            row_faces = faces(k,:) - 1;
-            fprintf(fid , '\t\t\t\t\t<triangle v1="%u" v2="%u" v3="%u" pid="2" p1="%u" p2="%u" p3="%u" />\n' , row_faces , row_colors);        
-        end        
+        row_colors = idx_colors(faces) - 1;
+        row_faces = faces - 1;
+        fprintf(fid , '\t\t\t\t\t<triangle v1="%u" v2="%u" v3="%u" pid="2" p1="%u" p2="%u" p3="%u" />\n' , [row_faces row_colors]');      
     end
     fprintf(fid , '\t\t\t\t</triangles>\n');
     
